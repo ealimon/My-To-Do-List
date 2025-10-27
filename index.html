@@ -27,17 +27,10 @@
             text-align: center;
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
-            margin-bottom: 5px; /* Reduced margin to fit counter */
+            margin-bottom: 20px; /* Restored margin for spacing */
         }
         
-        #task-counter {
-            text-align: center;
-            color: #dc3545; /* Red color for urgency */
-            font-size: 1.1em;
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
+        /* Removed #task-counter style */
 
         /* List Styling (Mobile Optimized) */
         .list-section {
@@ -91,7 +84,7 @@
             color: #888;
         }
         
-        /* NEW: Dedicated style for the task-specific link button */
+        /* Dedicated style for the task-specific link button */
         .task-link-button {
             margin-left: 15px;
             text-decoration: none;
@@ -229,8 +222,6 @@
 
 <div class="container">
     <h1>✅ My To Do List</h1> 
-    <h2 id="task-counter"></h2> 
-
     <div class="list-section">
         <h2>Popular Tasks (Check off when done)</h2>
         <div id="popular-items-list">
@@ -268,7 +259,7 @@
         { name: "Empty dishwasher", category: "Home/Errands" },
         { name: "Take out the trash & recycling", category: "Home/Errands" },
         { name: "Pay credit card bill 💳", category: "Home/Errands" },
-        // Item with the link and restored emoji
+        // Item with the link and emoji
         { name: "Grocery shopping 🛒", category: "Home/Errands", link: "https://ealimon.github.io/web-grocery-list/" }, 
         { name: "Clean out the car", category: "Home/Errands" },
         { name: "Call the landlord/repair person", category: "Home/Errands" },
@@ -290,7 +281,7 @@
 
     const popularListContainer = document.getElementById('popular-items-list');
     const customContainer = document.getElementById('custom-items-container');
-    const taskCounter = document.getElementById('task-counter');
+    // const taskCounter = document.getElementById('task-counter'); <-- REMOVED
     const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     // --- INITIALIZATION AND LOCAL STORAGE ---
@@ -299,29 +290,13 @@
         renderPopularItems();
         loadCustomItems();
         attachEventListeners();
-        updateTaskCount(); // Initial count
+        // updateTaskCount(); <-- REMOVED
     });
 
     // Helper to strip emojis and trim for clean comparison/sorting
     const cleanName = (s) => s.replace(/[\uD800-\uDBFF\uDC00-\uDFFF\u2600-\u26FF\u2700-\u27BF]/g, '').trim();
 
-    // FUNCTION TO UPDATE TASK COUNT
-    function updateTaskCount() {
-        // Count unchecked popular items
-        const uncheckedPopular = popularListContainer.querySelectorAll('input[type="checkbox"]:not(:checked)').length;
-
-        // Count non-empty custom items (assuming custom items are "active" tasks)
-        const activeCustom = Array.from(customContainer.querySelectorAll('input[type="text"]'))
-            .filter(input => input.value.trim() !== '').length;
-
-        const totalTasks = uncheckedPopular + activeCustom;
-        
-        if (totalTasks === 0) {
-            taskCounter.textContent = "All tasks complete! 🎉";
-        } else {
-            taskCounter.textContent = `You have ${totalTasks} tasks remaining.`;
-        }
-    }
+    // function updateTaskCount() { ... } <-- REMOVED
 
     // Generate HTML for the popular items, grouped by category
     function renderPopularItems() {
@@ -401,14 +376,14 @@
         popularListContainer.addEventListener('change', (event) => {
             if (event.target.type === 'checkbox') {
                 savePopularItems();
-                updateTaskCount(); // Update count on popular item check/uncheck
+                // updateTaskCount(); <-- REMOVED
             }
         });
 
-        // Event listener for both input (saving) and change (counting)
+        // Event listener for input (saving)
         customContainer.addEventListener('input', () => {
             saveCustomItems();
-            updateTaskCount(); // Update count when custom text changes
+            // updateTaskCount(); <-- REMOVED
         });
     }
     
@@ -446,7 +421,7 @@
         removeBtn.onclick = () => {
             row.remove();
             saveCustomItems();
-            updateTaskCount(); // Update count when item is removed
+            // updateTaskCount(); <-- REMOVED
         };
         
         row.appendChild(removeBtn);
@@ -476,7 +451,7 @@
         
         savePopularItems(); 
         saveCustomItems();
-        updateTaskCount();
+        // updateTaskCount(); <-- REMOVED
         
         alert('List cleared!');
     }
@@ -511,7 +486,7 @@
             return;
         }
 
-        // --- NEW EMAIL BODY STRUCTURE ---
+        // --- EMAIL BODY STRUCTURE ---
         let emailBody = "";
         
         if (popularRemaining.length > 0 || customItems.length > 0) {
@@ -538,8 +513,3 @@
         const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
         
         window.location.href = mailtoLink;
-    }
-</script>
-
-</body>
-</html>
