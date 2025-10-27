@@ -27,11 +27,9 @@
             text-align: center;
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
-            margin-bottom: 20px; /* Restored margin for spacing */
+            margin-bottom: 20px; /* Restored standard margin */
         }
         
-        /* Removed #task-counter style */
-
         /* List Styling (Mobile Optimized) */
         .list-section {
             margin-bottom: 30px;
@@ -42,7 +40,7 @@
 
         /* Category Header Styling */
         .category-header {
-            color: #1a73e8; /* A clear blue to distinguish from the main heading */
+            color: #1a73e8; 
             font-size: 1.15em;
             margin-top: 20px;
             margin-bottom: 10px;
@@ -222,6 +220,7 @@
 
 <div class="container">
     <h1>✅ My To Do List</h1> 
+
     <div class="list-section">
         <h2>Popular Tasks (Check off when done)</h2>
         <div id="popular-items-list">
@@ -281,7 +280,6 @@
 
     const popularListContainer = document.getElementById('popular-items-list');
     const customContainer = document.getElementById('custom-items-container');
-    // const taskCounter = document.getElementById('task-counter'); <-- REMOVED
     const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     // --- INITIALIZATION AND LOCAL STORAGE ---
@@ -290,13 +288,10 @@
         renderPopularItems();
         loadCustomItems();
         attachEventListeners();
-        // updateTaskCount(); <-- REMOVED
     });
 
-    // Helper to strip emojis and trim for clean comparison/sorting
+    // Helper to strip emojis and trim for clean comparison/sorting/storage
     const cleanName = (s) => s.replace(/[\uD800-\uDBFF\uDC00-\uDFFF\u2600-\u26FF\u2700-\u27BF]/g, '').trim();
-
-    // function updateTaskCount() { ... } <-- REMOVED
 
     // Generate HTML for the popular items, grouped by category
     function renderPopularItems() {
@@ -376,14 +371,12 @@
         popularListContainer.addEventListener('change', (event) => {
             if (event.target.type === 'checkbox') {
                 savePopularItems();
-                // updateTaskCount(); <-- REMOVED
             }
         });
 
         // Event listener for input (saving)
         customContainer.addEventListener('input', () => {
             saveCustomItems();
-            // updateTaskCount(); <-- REMOVED
         });
     }
     
@@ -421,7 +414,6 @@
         removeBtn.onclick = () => {
             row.remove();
             saveCustomItems();
-            // updateTaskCount(); <-- REMOVED
         };
         
         row.appendChild(removeBtn);
@@ -451,7 +443,6 @@
         
         savePopularItems(); 
         saveCustomItems();
-        // updateTaskCount(); <-- REMOVED
         
         alert('List cleared!');
     }
@@ -513,3 +504,8 @@
         const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
         
         window.location.href = mailtoLink;
+    }
+</script>
+
+</body>
+</html>
