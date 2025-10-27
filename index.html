@@ -58,8 +58,19 @@
         .item-list li {
             margin-bottom: 15px;
             font-size: 1.15em;
+            /* Ensure list items use flex for vertical alignment of checkbox, text, and button */
+            display: flex;
+            align-items: center; 
+            justify-content: space-between; /* Space out the main label and the button */
         }
         
+        .item-list label {
+            /* Keep label content together */
+            display: flex;
+            align-items: center;
+            flex-grow: 1; /* Allow label to take up most of the space */
+        }
+
         /* Strikethrough Effect and large checkbox */
         .item-list input[type="checkbox"] {
             margin-right: 12px; 
@@ -212,225 +223,4 @@
 
         <div class="action-buttons">
             <button id="email-list-btn" onclick="emailList()">📧 Email To Do List</button>
-            <button id="clear-list-btn" onclick="clearList()">🔄 Clear List</button>
-        </div>
-
-        <a id="amazon-link-btn" href="https://amzn.to/4qlvDo2" target="_blank" role="button">
-            📦 Shop Amazon for Supplies
-        </a>
-    </div>
-</div>
-
-<script>
-    // UPDATED DATA STRUCTURE FOR TO DO ITEMS
-    const POPULAR_ITEMS = [
-        { name: "Reply to all emails 📧", category: "Work/Admin" },
-        { name: "Schedule next week's meetings", category: "Work/Admin" },
-        { name: "Review and approve budget", category: "Work/Admin" },
-        { name: "Empty dishwasher", category: "Home/Errands" },
-        { name: "Take out the trash & recycling", category: "Home/Errands" },
-        { name: "Pay credit card bill 💳", category: "Home/Errands" },
-        { name: "Grocery shopping 🛒", category: "Home/Errands" },
-        { name: "Clean out the car", category: "Home/Errands" },
-        { name: "Call the landlord/repair person", category: "Home/Errands" },
-        { name: "Wash and fold laundry 🧺", category: "Home/Errands" },
-        { name: "Tidy up main living area", category: "Home/Errands" },
-        { name: "Walk the dog 🐕", category: "Personal/Health" },
-        { name: "Workout for 30 minutes 💪", category: "Personal/Health" },
-        { name: "Meditate/practice mindfulness", category: "Personal/Health" },
-        { name: "Read a chapter of a book 📖", category: "Personal/Health" },
-        { name: "Call a family member/friend 📞", category: "Personal/Health" },
-        { name: "Plan tomorrow's meals", category: "Planning/Future" },
-        { name: "Set 3 goals for the month", category: "Planning/Future" },
-        { name: "Backup computer files", category: "Tech/Maintenance" },
-        { name: "Update phone apps", category: "Tech/Maintenance" }
-    ];
-
-    const popularListContainer = document.getElementById('popular-items-list');
-    const customContainer = document.getElementById('custom-items-container');
-    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    // --- INITIALIZATION AND LOCAL STORAGE ---
-
-    document.addEventListener('DOMContentLoaded', () => {
-        renderPopularItems();
-        loadCustomItems();
-        attachEventListeners();
-    });
-
-    // Helper to strip emojis and trim for clean comparison/sorting
-    const cleanName = (s) => s.replace(/[\uD800-\uDBFF\uDC00-\uDFFF\u2600-\u26FF\u2700-\u27BF]/g, '').trim();
-
-    // Generate HTML for the popular items, grouped by category
-    function renderPopularItems() {
-        popularListContainer.innerHTML = '';
-        const savedChecks = JSON.parse(localStorage.getItem('popularChecks')) || {};
-
-        // 1. Group items by category
-        const categorizedItems = POPULAR_ITEMS.reduce((acc, item) => {
-            acc[item.category] = acc[item.category] || [];
-            acc[item.category].push(item);
-            return acc;
-        }, {});
-
-        // 2. Sort categories alphabetically
-        const sortedCategories = Object.keys(categorizedItems).sort();
-
-        // 3. Render
-        sortedCategories.forEach(category => {
-            // Create Category Header
-            const header = document.createElement('h3');
-            header.className = 'category-header';
-            header.textContent = category;
-            popularListContainer.appendChild(header);
-
-            const ul = document.createElement('ul');
-            ul.className = 'item-list';
-
-            // Sort items within each category alphabetically
-            categorizedItems[category].sort((a, b) => cleanName(a.name).localeCompare(cleanName(b.name)));
-
-            categorizedItems[category].forEach(item => {
-                const itemCleanName = cleanName(item.name);
-                const id = `item-${itemCleanName.replace(/\s/g, '-')}`;
-                const isChecked = savedChecks[itemCleanName] ? 'checked' : '';
-                
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <label>
-                        <input type="checkbox" id="${id}" value="${itemCleanName}" ${isChecked}>
-                        <span>${item.name}</span>
-                    </label>
-                `;
-                ul.appendChild(li);
-            });
-            popularListContainer.appendChild(ul);
-        });
-    }
-    
-    // Load and render custom items from local storage
-    function loadCustomItems() {
-        const savedCustom = JSON.parse(localStorage.getItem('customItems')) || [""]; 
-
-        customContainer.innerHTML = '';
-        
-        savedCustom.forEach(value => addCustomItem(value, false)); // Don't autofocus on load
-        if (savedCustom.length === 0) {
-            addCustomItem();
-        }
-    }
-    
-    // --- EVENT LISTENERS AND STORAGE HANDLERS ---
-    
-    function attachEventListeners() {
-        popularListContainer.addEventListener('change', (event) => {
-            if (event.target.type === 'checkbox') {
-                savePopularItems();
-            }
-        });
-
-        customContainer.addEventListener('input', saveCustomItems);
-    }
-    
-    function savePopularItems() {
-        const checks = {};
-        popularListContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checks[checkbox.value] = checkbox.checked;
-        });
-        localStorage.setItem('popularChecks', JSON.stringify(checks));
-    }
-    
-    function saveCustomItems() {
-        const customItems = Array.from(customContainer.querySelectorAll('input[type="text"]'))
-            .map(input => input.value.trim());
-        localStorage.setItem('customItems', JSON.stringify(customItems));
-    }
-
-    // --- DYNAMIC CUSTOM ITEM FUNCTIONALITY ---
-
-    function addCustomItem(value = '', autofocus = true) {
-        const row = document.createElement('div');
-        row.className = 'custom-item-row';
-        
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = value;
-        input.placeholder = "Enter task name";
-        row.appendChild(input);
-
-        const removeBtn = document.createElement('button');
-        removeBtn.textContent = 'X';
-        removeBtn.onclick = () => {
-            row.remove();
-            saveCustomItems();
-        };
-        
-        row.appendChild(removeBtn);
-        customContainer.appendChild(row);
-        
-        if (autofocus && value === '') {
-            input.focus(); // Autofocus on the new, empty input field
-        }
-    }
-    
-    // --- CLEAR AND EMAIL ACTIONS ---
-
-    function clearList() {
-        if (!confirm("Are you sure you want to clear the entire list (checkboxes and custom items)?")) {
-            return;
-        }
-
-        popularListContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.checked = false;
-        });
-        
-        customContainer.innerHTML = '';
-        addCustomItem();
-
-        localStorage.removeItem('popularChecks');
-        localStorage.removeItem('customItems');
-        
-        savePopularItems(); 
-        saveCustomItems();
-        
-        alert('List cleared!');
-    }
-
-
-    function emailList() {
-        const emailInput = document.getElementById('email-recipient');
-        const recipient = emailInput.value.trim();
-
-        if (!recipient || !EMAIL_REGEX.test(recipient)) {
-            alert('Please enter a valid email address (e.g., name@example.com).');
-            emailInput.focus();
-            return;
-        }
-
-        const popularItems = Array.from(popularListContainer.querySelectorAll('input[type="checkbox"]:checked'))
-            .map(checkbox => checkbox.value);
-
-        const customItems = Array.from(customContainer.querySelectorAll('input[type="text"]'))
-            .map(input => input.value.trim())
-            .filter(item => item !== '');
-
-        const allItems = [...popularItems, ...customItems];
-
-        if (allItems.length === 0) {
-            alert('Your list is empty! Please select or add some tasks before emailing.');
-            return;
-        }
-
-        const listItemsText = allItems.map((item, index) => `${index + 1}. ${item}`).join('\n');
-        
-        const emailSubject = 'My Current To Do List';
-        const emailBody = `Here are my tasks:\n\n${listItemsText}\n\nTime to get things done! ✅`;
-        
-        const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-        
-        window.location.href = mailtoLink;
-    }
-</script>
-
-</body>
-</html>
+            <button id="clear-list-btn" onclick="clear
